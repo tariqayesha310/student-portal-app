@@ -1,22 +1,18 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Login from './pages/Login';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useAuth } from './contexts/AuthContext';
 import Dashboard from './pages/Dashboard';
 import Notes from './pages/Notes';
 import UploadNote from './pages/UploadNote';
 import NoteViewer from './pages/NoteViewer';
 import Timetable from './pages/Timetable';
+import Login from './pages/Login';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 
-function AppContent() {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
+function App() {
+  const { user } = useAuth();
 
   return (
     <Router>
@@ -24,7 +20,7 @@ function AppContent() {
         {user && <Navbar />}
         <main className="main-content">
           <Routes>
-            <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/" element={
               <PrivateRoute>
                 <Dashboard />
@@ -50,19 +46,11 @@ function AppContent() {
                 <Timetable />
               </PrivateRoute>
             } />
-            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </main>
+        <Footer />
       </div>
     </Router>
-  );
-}
-
-function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
   );
 }
 

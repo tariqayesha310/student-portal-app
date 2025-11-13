@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FileText, Search, Filter, Plus } from 'lucide-react';
+import { FileText, Search, Filter, Plus, BookOpen } from 'lucide-react';
 
 interface Note {
   id: string;
@@ -12,60 +12,54 @@ interface Note {
 }
 
 const Notes: React.FC = () => {
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
+  const [notes] = useState<Note[]>([
+    {
+      id: '1',
+      title: 'Introduction to Algorithms',
+      course: 'Computer Science',
+      tags: ['algorithms', 'cs', 'study'],
+      uploadDate: '2024-01-15'
+    },
+    {
+      id: '2',
+      title: 'Calculus Notes',
+      course: 'Mathematics',
+      tags: ['calculus', 'math', 'derivatives'],
+      uploadDate: '2024-01-14'
+    },
+    {
+      id: '3',
+      title: 'Physics Fundamentals',
+      course: 'Physics',
+      tags: ['physics', 'mechanics', 'laws'],
+      uploadDate: '2024-01-13'
+    },
+    {
+      id: '4',
+      title: 'Data Structures',
+      course: 'Computer Science',
+      tags: ['data structures', 'cs', 'programming'],
+      uploadDate: '2024-01-12'
+    },
+    {
+      id: '5',
+      title: 'Linear Algebra',
+      course: 'Mathematics',
+      tags: ['linear algebra', 'math', 'vectors'],
+      uploadDate: '2024-01-11'
+    }
+  ]);
+  const [filteredNotes, setFilteredNotes] = useState<Note[]>(notes);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [courses, setCourses] = useState<string[]>([]);
   const [allTags, setAllTags] = useState<string[]>([]);
 
-  useEffect(() => {
-    loadNotes();
-  }, []);
-
-  useEffect(() => {
+  React.useEffect(() => {
+    extractFilters(notes);
     filterNotes();
   }, [notes, searchQuery, selectedCourse, selectedTags]);
-
-  const loadNotes = async () => {
-    try {
-      const response = await fetch('/api/notes');
-      if (response.ok) {
-        const notesData = await response.json();
-        setNotes(notesData);
-        extractFilters(notesData);
-      }
-    } catch (error) {
-      console.error('Error loading notes:', error);
-      // Mock data for development
-      const mockNotes: Note[] = [
-        {
-          id: '1',
-          title: 'Introduction to Algorithms',
-          course: 'CS101',
-          tags: ['algorithms', 'computer science'],
-          uploadDate: new Date().toISOString(),
-        },
-        {
-          id: '2',
-          title: 'Calculus Notes',
-          course: 'MATH201',
-          tags: ['calculus', 'mathematics'],
-          uploadDate: new Date().toISOString(),
-        },
-        {
-          id: '3',
-          title: 'Data Structures',
-          course: 'CS102',
-          tags: ['data structures', 'computer science'],
-          uploadDate: new Date().toISOString(),
-        },
-      ];
-      setNotes(mockNotes);
-      extractFilters(mockNotes);
-    }
-  };
 
   const extractFilters = (notesData: Note[]) => {
     const uniqueCourses = [...new Set(notesData.map(note => note.course))];
@@ -165,7 +159,7 @@ const Notes: React.FC = () => {
                 {note.thumbnailUrl ? (
                   <img src={note.thumbnailUrl} alt={note.title} />
                 ) : (
-                  <FileText size={48} />
+                  <BookOpen size={48} />
                 )}
               </div>
               <div className="note-info">

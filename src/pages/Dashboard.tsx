@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { FileText, Upload, Calendar, Search } from 'lucide-react';
+import { FileText, Upload, Calendar, Search, BookOpen } from 'lucide-react';
 
 interface Note {
   id: string;
@@ -13,43 +12,30 @@ interface Note {
 }
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
-  const [recentNotes, setRecentNotes] = useState<Note[]>([]);
+  const [recentNotes] = useState<Note[]>([
+    {
+      id: '1',
+      title: 'Introduction to Algorithms',
+      course: 'Computer Science',
+      tags: ['algorithms', 'cs', 'study'],
+      uploadDate: '2024-01-15'
+    },
+    {
+      id: '2',
+      title: 'Calculus Notes',
+      course: 'Mathematics',
+      tags: ['calculus', 'math', 'derivatives'],
+      uploadDate: '2024-01-14'
+    },
+    {
+      id: '3',
+      title: 'Physics Fundamentals',
+      course: 'Physics',
+      tags: ['physics', 'mechanics', 'laws'],
+      uploadDate: '2024-01-13'
+    }
+  ]);
   const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    // Load recent notes - replace with actual API call
-    const loadRecentNotes = async () => {
-      try {
-        const response = await fetch('/api/notes/recent');
-        if (response.ok) {
-          const notes = await response.json();
-          setRecentNotes(notes);
-        }
-      } catch (error) {
-        console.error('Error loading recent notes:', error);
-        // Mock data for development
-        setRecentNotes([
-          {
-            id: '1',
-            title: 'Introduction to Algorithms',
-            course: 'CS101',
-            tags: ['algorithms', 'computer science'],
-            uploadDate: new Date().toISOString(),
-          },
-          {
-            id: '2',
-            title: 'Calculus Notes',
-            course: 'MATH201',
-            tags: ['calculus', 'mathematics'],
-            uploadDate: new Date().toISOString(),
-          },
-        ]);
-      }
-    };
-
-    loadRecentNotes();
-  }, []);
 
   const filteredNotes = recentNotes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -60,8 +46,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard">
       <div className="dashboard-header">
-        <h1>Welcome back, {user?.name}!</h1>
-        <p>Manage your study materials and schedule</p>
+        <h1>Welcome to Student Portal!</h1>
+        <p>Organize your notes and manage your study schedule</p>
       </div>
 
       <div className="dashboard-actions">
@@ -71,7 +57,7 @@ const Dashboard: React.FC = () => {
           <p>Add new study materials</p>
         </Link>
         <Link to="/notes" className="action-card">
-          <FileText size={24} />
+          <BookOpen size={24} />
           <h3>Browse Notes</h3>
           <p>View all your notes</p>
         </Link>
