@@ -1,11 +1,26 @@
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from '../../contexts/AuthContext';
 import Navbar from '../Navbar';
+import { vi } from 'vitest';
 
-const renderNavbar = () => {
+const mockUseAuth = vi.fn();
+vi.mock('../../contexts/AuthContext', () => ({
+  useAuth: () => mockUseAuth(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+const renderNavbar = (authenticated = true) => {
+  mockUseAuth.mockReturnValue({
+    user: authenticated ? { name: 'John Doe' } : null,
+    logout: vi.fn(),
+  });
+
   return render(
     <BrowserRouter>
-      <Navbar />
+      <AuthProvider>
+        <Navbar />
+      </AuthProvider>
     </BrowserRouter>
   );
 };

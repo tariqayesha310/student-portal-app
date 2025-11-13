@@ -7,6 +7,7 @@ import { vi } from 'vitest';
 const mockUseAuth = vi.fn();
 vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => mockUseAuth(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 const TestComponent = () => <div>Protected Content</div>;

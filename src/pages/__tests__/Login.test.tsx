@@ -14,6 +14,7 @@ vi.mock('../../contexts/AuthContext', () => ({
     register: mockSignUp,
     user: null,
   }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
 const renderLogin = () => {
