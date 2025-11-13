@@ -1,25 +1,24 @@
-# Student Portal - Notes Organizer
+# Student Portal App
 
-A modern, professional web application for students to organize and manage their study materials, notes, and timetable.
+A comprehensive React TypeScript application for students to organize their notes and manage timetables. Built with Vite, featuring authentication, note management, and schedule planning.
 
 ## Features
 
-- **📚 Note Management**: Upload, organize, and view notes by subject and tags
-- **📅 Timetable**: Schedule and manage classes, study sessions, and assignments
-- **🔍 Smart Search**: Find notes quickly with advanced search and filtering
-- **📤 File Upload**: Support for multiple file formats (PDF, DOC, images, etc.)
-- **👤 User Authentication**: Secure login and registration system
-- **📱 Responsive Design**: Works seamlessly on desktop and mobile devices
-- **🎨 Modern UI**: Beautiful gradient backgrounds and glassmorphism effects
+- 🔐 **Authentication**: Secure login and registration system
+- 📝 **Note Management**: Create, view, edit, and organize study notes
+- 📅 **Timetable**: Schedule and manage classes, study sessions, exams, and assignments
+- 🔍 **Search & Filter**: Find notes quickly with advanced search and filtering
+- 📱 **Responsive Design**: Works seamlessly on desktop and mobile devices
+- 💾 **Local Storage**: All data persists locally in your browser
 
 ## Tech Stack
 
-- **Frontend**: React 18 with TypeScript
+- **Frontend**: React 18, TypeScript, Vite
 - **Styling**: CSS with modern design patterns
 - **Icons**: Lucide React
-- **Routing**: React Router DOM
+- **Routing**: React Router
+- **Testing**: Vitest, React Testing Library
 - **Build Tool**: Vite
-- **Testing**: Vitest with React Testing Library
 
 ## Getting Started
 
@@ -30,35 +29,53 @@ A modern, professional web application for students to organize and manage their
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/tariqayesha310/student-portal-app.git
-cd student-portal-app
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/tariqayesha310/student-portal-app.git
+   cd student-portal-app
+   ```
 
-2. Install dependencies:
-```bash
-npm install
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-3. Start the development server:
-```bash
-npm run dev
-```
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+4. **Open your browser**
+   Navigate to [http://localhost:5173](http://localhost:5173)
 
-### Building for Production
+### Available Scripts
 
-```bash
-npm run build
-```
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run test` - Run tests
+- `npm run lint` - Run ESLint
 
-### Running Tests
+## Usage
 
-```bash
-npm run test
-```
+### Authentication
+- **Register**: Create a new account with email and name
+- **Login**: Sign in with any email/password combination (demo mode)
+
+### Managing Notes
+- **View Notes**: Browse all your notes on the Notes page
+- **Search**: Use the search bar to find notes by title or content
+- **Filter**: Filter by course or tags
+- **Create Note**: Click "Upload" to add new notes with content
+- **View Note**: Click on any note card to view full content
+- **Download**: Download notes as markdown files
+- **Delete**: Remove notes you no longer need
+
+### Timetable Management
+- **View Schedule**: See your weekly schedule organized by day
+- **Add Events**: Create classes, study sessions, exams, or assignments
+- **Edit Events**: Modify existing events
+- **Delete Events**: Remove events from your schedule
 
 ## Project Structure
 
@@ -70,39 +87,61 @@ src/
 │   └── PrivateRoute.tsx # Route protection
 ├── contexts/           # React contexts
 │   └── AuthContext.tsx # Authentication state
-├── pages/              # Page components
-│   ├── Dashboard.tsx   # Main dashboard
-│   ├── Login.tsx       # Authentication page
-│   ├── Notes.tsx       # Notes listing
-│   ├── NoteViewer.tsx  # Individual note view
-│   ├── Timetable.tsx   # Schedule management
-│   └── UploadNote.tsx  # File upload page
-├── test/               # Test utilities
-└── types/              # TypeScript type definitions
+├── pages/             # Page components
+│   ├── Dashboard.tsx  # Main dashboard
+│   ├── Login.tsx      # Authentication page
+│   ├── Notes.tsx      # Notes listing page
+│   ├── NoteViewer.tsx # Individual note view
+│   ├── Timetable.tsx  # Schedule management
+│   └── UploadNote.tsx # Note creation form
+├── App.tsx            # Main app component
+├── App.css            # Global styles
+└── main.ts           # App entry point
 ```
 
-## Features in Detail
+## Testing
 
-### Authentication
-- Secure login and registration
-- Protected routes for authenticated users only
-- Persistent login state with localStorage
+The app includes comprehensive unit tests for components and contexts:
 
-### Note Management
-- Upload notes with metadata (title, course, tags)
-- Organize notes by subject and custom tags
-- Search and filter functionality
-- View notes in various formats
+```bash
+npm run test
+```
 
-### Timetable
-- Add and manage schedule events
-- Different event types (classes, study sessions, exams)
-- Weekly view with day selection
+Tests cover:
+- Authentication logic
+- Component rendering
+- User interactions
+- Route protection
 
-### Responsive Design
-- Mobile-first approach
-- Adaptive layouts for all screen sizes
-- Touch-friendly interactions
+## Deployment
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+The build artifacts will be stored in the `dist/` directory.
+
+### Deploy to GitHub Pages
+
+1. Install gh-pages:
+   ```bash
+   npm install --save-dev gh-pages
+   ```
+
+2. Add deploy script to package.json:
+   ```json
+   "scripts": {
+     "deploy": "gh-pages -d dist"
+   }
+   ```
+
+3. Deploy:
+   ```bash
+   npm run build
+   npm run deploy
+   ```
 
 ## Contributing
 
@@ -118,6 +157,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Icons provided by [Lucide](https://lucide.dev/)
-- UI inspiration from modern web design trends
-- Built with ❤️ for the student community
+- Built with [Vite](https://vitejs.dev/)
+- Icons from [Lucide](https://lucide.dev/)
+- UI inspired by modern design principles

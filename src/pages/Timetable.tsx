@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Clock } from 'lucide-react';
 
 interface Event {
@@ -12,38 +12,64 @@ interface Event {
 }
 
 const Timetable: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([
-    {
-      id: '1',
-      title: 'Introduction to Algorithms',
-      course: 'CS101',
-      day: 'Monday',
-      startTime: '09:00',
-      endTime: '10:30',
-      type: 'class'
-    },
-    {
-      id: '2',
-      title: 'Calculus Study Session',
-      course: 'MATH201',
-      day: 'Tuesday',
-      startTime: '14:00',
-      endTime: '16:00',
-      type: 'study'
-    },
-    {
-      id: '3',
-      title: 'Physics Lab',
-      course: 'PHYS101',
-      day: 'Wednesday',
-      startTime: '10:00',
-      endTime: '12:00',
-      type: 'class'
-    }
-  ]);
-
+  const [events, setEvents] = useState<Event[]>([]);
   const [selectedDay, setSelectedDay] = useState('Monday');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    course: '',
+    day: 'Monday',
+    startTime: '',
+    endTime: '',
+    type: 'class' as Event['type']
+  });
+
+  // Load events from localStorage on component mount
+  useEffect(() => {
+    const savedEvents = localStorage.getItem('timetable-events');
+    if (savedEvents) {
+      setEvents(JSON.parse(savedEvents));
+    } else {
+      // Set default events if none exist
+      const defaultEvents: Event[] = [
+        {
+          id: '1',
+          title: 'Introduction to Algorithms',
+          course: 'CS101',
+          day: 'Monday',
+          startTime: '09:00',
+          endTime: '10:30',
+          type: 'class'
+        },
+        {
+          id: '2',
+          title: 'Calculus Study Session',
+          course: 'MATH201',
+          day: 'Tuesday',
+          startTime: '14:00',
+          endTime: '16:00',
+          type: 'study'
+        },
+        {
+          id: '3',
+          title: 'Physics Lab',
+          course: 'PHYS101',
+          day: 'Wednesday',
+          startTime: '10:00',
+          endTime: '12:00',
+          type: 'class'
+        }
+      ];
+      setEvents(defaultEvents);
+      localStorage.setItem('timetable-events', JSON.stringify(defaultEvents));
+    }
+  }, []);
+
+  // Save events to localStorage whenever events change
+  useEffect(() => {
+    localStorage.setItem('timetable-events', JSON.stringify(events));
+  }, [events]);
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -65,12 +91,70 @@ const Timetable: React.FC = () => {
     }
   };
 
+  const handleAddEvent = () => {
+    setEditingEvent(null);
+    setFormData({
+      title: '',
+      course: '',
+      day: selectedDay,
+      startTime: '',
+      endTime: '',
+      type: 'class'
+    });
+    setShowAddForm(true);
+  };
+
+  const handleEditEvent = (event: Event) => {
+    setEditingEvent(event);
+    setFormData({
+      title: event.title,
+      course: event.course,
+      day: event.day,
+      startTime: event.startTime,
+      endTime: event.endTime,
+      type: event.type
+    });
+    setShowAddForm(true);
+  };
+
+  const handleSubmitEvent = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title || !formData.course || !formData.startTime || !formData.endTime) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    if (editingEvent) {
+      // Update existing event
+      setEvents(events.map(event =>
+        event.id === editingEvent.id
+          ? { ...formData, id: editingEvent.id }
+          : event
+      ));
+    } else {
+      // Add new event
+      const newEvent: Event = {
+        ...formData,
+        id: Date.now().toString()
+      };
+      setEvents([...events, newEvent]);
+    }
+
+    setShowAddForm(false);
+    setEditingEvent(null);
+  };
+
+  const handleCancel = () => {
+    setShowAddForm(false);
+    setEditingEvent(null);
+  };
+
   return (
     <div className="timetable">
       <div className="page-header">
         <h1>My Timetable</h1>
         <button
-          onClick={() => setShowAddForm(true)}
+          onClick={handleAddEvent}
           className="btn-primary"
         >
           <Plus size={18} />
@@ -103,12 +187,13 @@ const Timetable: React.FC = () => {
                       {event.type}
                     </div>
                     <div className="event-actions">
-                      <button className="action-btn">
+                      <button onClick={() => handleEditEvent(event)} className="action-btn" title="Edit event">
                         <Edit size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(event.id)}
                         className="action-btn delete"
+                        title="Delete event"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -139,19 +224,37 @@ const Timetable: React.FC = () => {
       {showAddForm && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>Add New Event</h3>
-            <form className="event-form">
+            <h3>{editingEvent ? 'Edit Event' : 'Add New Event'}</h3>
+            <form onSubmit={handleSubmitEvent} className="event-form">
               <div className="form-group">
-                <label>Title</label>
-                <input type="text" placeholder="Event title" />
+                <label htmlFor="event-title">Title</label>
+                <input
+                  id="event-title"
+                  type="text"
+                  placeholder="Event title"
+                  value={formData.title}
+                  onChange={(e) => setFormData({...formData, title: e.target.value})}
+                  required
+                />
               </div>
               <div className="form-group">
-                <label>Course</label>
-                <input type="text" placeholder="Course name" />
+                <label htmlFor="event-course">Course</label>
+                <input
+                  id="event-course"
+                  type="text"
+                  placeholder="Course name"
+                  value={formData.course}
+                  onChange={(e) => setFormData({...formData, course: e.target.value})}
+                  required
+                />
               </div>
               <div className="form-group">
-                <label>Day</label>
-                <select>
+                <label htmlFor="event-day">Day</label>
+                <select
+                  id="event-day"
+                  value={formData.day}
+                  onChange={(e) => setFormData({...formData, day: e.target.value})}
+                >
                   {days.map(day => (
                     <option key={day} value={day}>{day}</option>
                   ))}
@@ -159,17 +262,33 @@ const Timetable: React.FC = () => {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Start Time</label>
-                  <input type="time" />
+                  <label htmlFor="event-start">Start Time</label>
+                  <input
+                    id="event-start"
+                    type="time"
+                    value={formData.startTime}
+                    onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                    required
+                  />
                 </div>
                 <div className="form-group">
-                  <label>End Time</label>
-                  <input type="time" />
+                  <label htmlFor="event-end">End Time</label>
+                  <input
+                    id="event-end"
+                    type="time"
+                    value={formData.endTime}
+                    onChange={(e) => setFormData({...formData, endTime: e.target.value})}
+                    required
+                  />
                 </div>
               </div>
               <div className="form-group">
-                <label>Type</label>
-                <select>
+                <label htmlFor="event-type">Type</label>
+                <select
+                  id="event-type"
+                  value={formData.type}
+                  onChange={(e) => setFormData({...formData, type: e.target.value as Event['type']})}
+                >
                   <option value="class">Class</option>
                   <option value="study">Study</option>
                   <option value="exam">Exam</option>
@@ -179,13 +298,13 @@ const Timetable: React.FC = () => {
               <div className="form-actions">
                 <button
                   type="button"
-                  onClick={() => setShowAddForm(false)}
+                  onClick={handleCancel}
                   className="btn-secondary"
                 >
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary">
-                  Add Event
+                  {editingEvent ? 'Update Event' : 'Add Event'}
                 </button>
               </div>
             </form>

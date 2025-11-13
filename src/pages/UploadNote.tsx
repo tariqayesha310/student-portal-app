@@ -2,11 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, FileText, X } from 'lucide-react';
 
+interface Note {
+  id: string;
+  title: string;
+  course: string;
+  tags: string[];
+  uploadDate: string;
+  content?: string;
+}
+
 const UploadNote: React.FC = () => {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [course, setCourse] = useState('');
   const [tags, setTags] = useState('');
+  const [content, setContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -18,15 +28,34 @@ const UploadNote: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !title || !course) return;
+    if (!title || !course) return;
 
     setUploading(true);
 
-    // Simulate upload
+    // Create new note object
+    const newNote: Note = {
+      id: Date.now().toString(),
+      title,
+      course,
+      tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+      uploadDate: new Date().toISOString().split('T')[0],
+      content: content || undefined
+    };
+
+    // Get existing notes from localStorage
+    const existingNotes = JSON.parse(localStorage.getItem('student-notes') || '[]');
+
+    // Add new note
+    const updatedNotes = [...existingNotes, newNote];
+
+    // Save to localStorage
+    localStorage.setItem('student-notes', JSON.stringify(updatedNotes));
+
+    // Simulate upload delay
     setTimeout(() => {
       setUploading(false);
       navigate('/notes');
-    }, 2000);
+    }, 1000);
   };
 
   const removeFile = () => {
@@ -76,6 +105,17 @@ const UploadNote: React.FC = () => {
         </div>
 
         <div className="form-group">
+          <label htmlFor="content">Content (optional)</label>
+          <textarea
+            id="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Enter note content here..."
+            rows={6}
+          />
+        </div>
+
+        <div className="form-group">
           <label htmlFor="file">File *</label>
           <div className="file-upload">
             <input
@@ -99,7 +139,7 @@ const UploadNote: React.FC = () => {
               </div>
             )}
           </div>
-          <small>Supported formats: PDF, DOC, DOCX, TXT, MD, JPG, PNG</small>
+          <small>Supported formats: PDF, DOC, DOCX, TXT, MD, JPG, PNG (optional - you can just enter content above)</small>
         </div>
 
         <div className="form-actions">
@@ -113,9 +153,10 @@ const UploadNote: React.FC = () => {
           <button
             type="submit"
             className="btn-primary"
-            disabled={!file || !title || !course || uploading}
+            disabled={!title || !course || uploading}
+            title={uploading ? 'Uploading note...' : 'Save note'}
           >
-            {uploading ? 'Uploading...' : 'Upload Note'}
+            {uploading ? 'Saving...' : 'Save Note'}
           </button>
         </div>
       </form>

@@ -1,73 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, Share2, Edit, Trash2, FileText } from 'lucide-react';
+
+interface Note {
+  id: string;
+  title: string;
+  course: string;
+  tags: string[];
+  uploadDate: string;
+  content?: string;
+}
 
 const NoteViewer: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [note, setNote] = useState<Note | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock note data - in real app this would come from API
-  const [note] = useState({
-    id: id || '1',
-    title: 'Introduction to Algorithms',
-    course: 'Computer Science',
-    tags: ['algorithms', 'cs', 'study'],
-    uploadDate: '2024-01-15',
-    content: `# Introduction to Algorithms
-
-## What are Algorithms?
-
-Algorithms are step-by-step procedures or formulas for solving problems. They are the foundation of computer science and programming.
-
-### Key Characteristics:
-- **Finite**: Must terminate after a finite number of steps
-- **Definite**: Each step must be precisely defined
-- **Effective**: Must be effective and feasible
-
-## Types of Algorithms
-
-### 1. Sorting Algorithms
-- Bubble Sort
-- Quick Sort
-- Merge Sort
-
-### 2. Search Algorithms
-- Linear Search
-- Binary Search
-
-## Time Complexity
-
-Time complexity measures how the runtime of an algorithm increases with the size of the input.
-
-- **O(1)**: Constant time
-- **O(log n)**: Logarithmic time
-- **O(n)**: Linear time
-- **O(n²)**: Quadratic time
-
-## Example: Binary Search
-
-\`\`\`python
-def binary_search(arr, target):
-    left, right = 0, len(arr) - 1
-
-    while left <= right:
-        mid = (left + right) // 2
-        if arr[mid] == target:
-            return mid
-        elif arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-
-    return -1
-\`\`\`
-
-This algorithm efficiently finds an element in a sorted array with O(log n) time complexity.`
-  });
+  // Load note from localStorage
+  useEffect(() => {
+    if (id) {
+      const savedNotes = JSON.parse(localStorage.getItem('student-notes') || '[]');
+      const foundNote = savedNotes.find((n: Note) => n.id === id);
+      if (foundNote) {
+        setNote(foundNote);
+      }
+    }
+    setLoading(false);
+  }, [id]);
 
   const handleDownload = () => {
+    if (!note) return;
+
+    const content = note.content || `# ${note.title}\n\nCourse: ${note.course}\n\nTags: ${note.tags.join(', ')}\n\nUploaded: ${note.uploadDate}`;
+
     // Mock download functionality
-    const blob = new Blob([note.content], { type: 'text/markdown' });
+    const blob = new Blob([content], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -98,11 +66,41 @@ This algorithm efficiently finds an element in a sorted array with O(log n) time
   };
 
   const handleDelete = () => {
+    if (!note) return;
+
     if (window.confirm('Are you sure you want to delete this note?')) {
-      // Mock delete
+      // Remove from localStorage
+      const savedNotes = JSON.parse(localStorage.getItem('student-notes') || '[]');
+      const updatedNotes = savedNotes.filter((n: Note) => n.id !== note.id);
+      localStorage.setItem('student-notes', JSON.stringify(updatedNotes));
+
       navigate('/notes');
     }
   };
+
+  if (loading) {
+    return <div className="loading">Loading note...</div>;
+  }
+
+  if (!note) {
+    return (
+      <div className="note-viewer">
+        <div className="viewer-header">
+          <button onClick={() => navigate('/notes')} className="back-btn">
+            <ArrowLeft size={20} />
+            Back to Notes
+          </button>
+        </div>
+        <div className="note-content">
+          <div className="empty-state">
+            <FileText size={48} />
+            <h3>Note not found</h3>
+            <p>The note you're looking for doesn't exist.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="note-viewer">
@@ -113,7 +111,7 @@ This algorithm efficiently finds an element in a sorted array with O(log n) time
         </button>
 
         <div className="note-actions">
-          <button onClick={handleDownload} className="action-btn">
+          <button onClick={handleDownload} className="action-btn" disabled={!note.content}>
             <Download size={18} />
             Download
           </button>
@@ -147,17 +145,18 @@ This algorithm efficiently finds an element in a sorted array with O(log n) time
         </div>
 
         <div className="note-body">
-          <div className="content-preview">
-            <FileText size={48} />
-            <p>This is a preview of the note content. In a full implementation, this would render the actual file content (PDF, image, or markdown).</p>
-          </div>
-
-          {/* For markdown content, you could use a library like react-markdown */}
-          <div className="markdown-content">
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
-              {note.content}
-            </pre>
-          </div>
+          {note.content ? (
+            <div className="markdown-content">
+              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>
+                {note.content}
+              </pre>
+            </div>
+          ) : (
+            <div className="content-preview">
+              <FileText size={48} />
+              <p>This note doesn't have content yet. You can add content when editing the note.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

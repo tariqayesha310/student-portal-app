@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Search, Filter, Plus, BookOpen } from 'lucide-react';
 
@@ -9,46 +9,11 @@ interface Note {
   tags: string[];
   uploadDate: string;
   thumbnailUrl?: string;
+  content?: string;
 }
 
 const Notes: React.FC = () => {
-  const [notes] = useState<Note[]>([
-    {
-      id: '1',
-      title: 'Introduction to Algorithms',
-      course: 'Computer Science',
-      tags: ['algorithms', 'cs', 'study'],
-      uploadDate: '2024-01-15'
-    },
-    {
-      id: '2',
-      title: 'Calculus Notes',
-      course: 'Mathematics',
-      tags: ['calculus', 'math', 'derivatives'],
-      uploadDate: '2024-01-14'
-    },
-    {
-      id: '3',
-      title: 'Physics Fundamentals',
-      course: 'Physics',
-      tags: ['physics', 'mechanics', 'laws'],
-      uploadDate: '2024-01-13'
-    },
-    {
-      id: '4',
-      title: 'Data Structures',
-      course: 'Computer Science',
-      tags: ['data structures', 'cs', 'programming'],
-      uploadDate: '2024-01-12'
-    },
-    {
-      id: '5',
-      title: 'Linear Algebra',
-      course: 'Mathematics',
-      tags: ['linear algebra', 'math', 'vectors'],
-      uploadDate: '2024-01-11'
-    }
-  ]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [filteredNotes, setFilteredNotes] = useState<Note[]>(notes);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
@@ -56,7 +21,62 @@ const Notes: React.FC = () => {
   const [courses, setCourses] = useState<string[]>([]);
   const [allTags, setAllTags] = useState<string[]>([]);
 
-  React.useEffect(() => {
+  // Load notes from localStorage on component mount
+  useEffect(() => {
+    const savedNotes = localStorage.getItem('student-notes');
+    if (savedNotes) {
+      setNotes(JSON.parse(savedNotes));
+    } else {
+      // Set default notes if none exist
+      const defaultNotes: Note[] = [
+        {
+          id: '1',
+          title: 'Introduction to Algorithms',
+          course: 'Computer Science',
+          tags: ['algorithms', 'cs', 'study'],
+          uploadDate: '2024-01-15',
+          content: `# Introduction to Algorithms
+
+## What are Algorithms?
+
+Algorithms are step-by-step procedures for solving problems.`
+        },
+        {
+          id: '2',
+          title: 'Calculus Notes',
+          course: 'Mathematics',
+          tags: ['calculus', 'math', 'derivatives'],
+          uploadDate: '2024-01-14',
+          content: `# Calculus Fundamentals
+
+## Derivatives
+
+The derivative measures the rate of change of a function.`
+        },
+        {
+          id: '3',
+          title: 'Physics Fundamentals',
+          course: 'Physics',
+          tags: ['physics', 'mechanics', 'laws'],
+          uploadDate: '2024-01-13',
+          content: `# Physics Fundamentals
+
+## Newton's Laws
+
+1. An object at rest stays at rest...`
+        }
+      ];
+      setNotes(defaultNotes);
+      localStorage.setItem('student-notes', JSON.stringify(defaultNotes));
+    }
+  }, []);
+
+  // Save notes to localStorage whenever notes change
+  useEffect(() => {
+    localStorage.setItem('student-notes', JSON.stringify(notes));
+  }, [notes]);
+
+  useEffect(() => {
     extractFilters(notes);
     filterNotes();
   }, [notes, searchQuery, selectedCourse, selectedTags]);
