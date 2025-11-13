@@ -45,20 +45,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string) => {
     setLoading(true);
     try {
-      // Simulate API call - replace with actual authentication
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+      // Mock authentication - in a real app, this would call your backend API
+      // For demo purposes, accept any email/password combination
+      const userData = {
+        id: '1',
+        email: email,
+        name: email.split('@')[0], // Use part before @ as name
+      };
 
-      if (!response.ok) {
-        throw new Error('Login failed');
-      }
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const userData = await response.json();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
@@ -72,20 +69,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (email: string, password: string, name: string) => {
     setLoading(true);
     try {
-      // Simulate API call - replace with actual registration
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, name }),
-      });
+      // Mock registration - in a real app, this would call your backend API
+      const userData = {
+        id: Date.now().toString(),
+        email: email,
+        name: name,
+      };
 
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const userData = await response.json();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {
